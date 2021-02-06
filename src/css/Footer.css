@@ -1,15 +1,16 @@
-.footer{
-    margin-top: 1rem;
-    padding: 1rem;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-  }
-.nav-class {
-    justify-content: center;
-}
-
 .nav-icon:hover {
     filter: brightness(75%);
+}
+.nav-icon {
+    margin-left: .3rem !important;
+    margin-right: .3rem !important;
+}
+.nav-icon-git {
+    filter: invert(100%);
+    margin-left: .3rem !important;
+    margin-right: .3rem !important;
+}
+
+.nav-icon-git:hover {
+    filter: invert(100%) brightness(75%);
 }

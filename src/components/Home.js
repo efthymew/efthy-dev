@@ -3,6 +3,7 @@ import { Component } from "react";
 //import StickyFooter from 'react-sticky-footer';
 
 import Footer from './Footer';
+import Header from './Header';
 
 // wallpapers
 import back1 from "../imgs/715670.png";
@@ -60,6 +61,7 @@ class Home extends Component {
                 width: '100%',
                 height: '100%'
             }}>
+                <Header />
                 <Footer />
             </div>
         )

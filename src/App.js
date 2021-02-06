@@ -7,15 +7,18 @@ import {
     Switch,
     Route
 } from "react-router-dom";
+import NotFound from './components/NotFound';
 
 function App() {
     return (
         <div className="App">
             <Router>
                 <Switch>
-                    <Route path="/">
-                        <Home />
-                    </Route>
+                    <Route exact path="/" component={Home} />
+                    <Route path="/me" component={Home} />
+                    <Route path="/work" component={Home} />
+                    <Route path="/projects" component={Home} />
+                    <Route component={NotFound} />
                 </Switch>
             </Router>
         </div>
