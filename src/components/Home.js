@@ -5,6 +5,9 @@ import { Component } from "react";
 import Footer from './Footer';
 import Header from './Header';
 
+
+import '../css/Home.css';
+
 // wallpapers
 import back1 from "../imgs/715670.png";
 import back2 from "../imgs/8fe6b53060e19d3d695ed17f39ce3129.jpg";
