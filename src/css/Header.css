@@ -3,3 +3,7 @@
     font-family: Roboto Slab !important;
     color: white !important;
 }
+
+.selected {
+    filter: invert(100%) brightness(75%);
+}
