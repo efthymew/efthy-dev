@@ -5,7 +5,7 @@ import FadeIn from 'react-fade-in';
 class Header extends Component {
     render() {
         return (
-            <Navbar fixed="top" className="justify-content-center" style={{position: 'sticky'}}>
+            <Navbar fixed="top" className="justify-content-center">
                 <FadeIn>
                     <NavItem>
                         <Navbar.Brand href='/' className='header-css'>

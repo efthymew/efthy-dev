@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import '../css/NotFound.css';
 
 const NotFound = () => (
-    <div style={{fontFamily: 'Roboto Slab'}}>
+    <div className='not-found'>
         <h1>404 - Not Found!</h1>
         <Link to="/">
             Go Home
