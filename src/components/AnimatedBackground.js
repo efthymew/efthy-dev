@@ -1,92 +1,81 @@
 import { Component } from "react";
 import * as THREE from "three";
+import SimplexNoise from 'simplex-noise';
 
 class AnimatedBackground extends Component {
 
     componentDidMount() {
-        // from THREE.js examples
-        var generateSprite = function () {
-
-            var canvas = document.createElement('canvas');
-            canvas.width = 16;
-            canvas.height = 16;
-
-            var context = canvas.getContext('2d');
-            var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
-            gradient.addColorStop(0, 'rgba(255,255,255,1)');
-            gradient.addColorStop(0.2, 'rgba(0,255,255,1)');
-            gradient.addColorStop(0.4, 'rgba(0,0,64,1)');
-            gradient.addColorStop(1, 'rgba(0,0,0,1)');
-            context.fillStyle = gradient;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
-            var texture = new THREE.Texture(canvas);
-            texture.needsUpdate = true;
-            return texture;
-
-        }
-
-        var createParticleSystem = function (geom) {
-            
-            var material = new THREE.PointsMaterial({
-                color: 0xffffff,
-                size: 3,
-                blending: THREE.AdditiveBlending,
-                map: generateSprite()
-            });
-
-            var system = new THREE.Points(geom, material);
-            system.sortParticles = true;
-            return system;
-        }
-        const radius = 40;
-        const tube = 28.2;
-        const radialSegments = 600;
-        const tubularSegments = 12;
-        const p = 5;
-        const q = 4;
-        const heightScale = 4;
-        const rotate = true;
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         var scene = new THREE.Scene();
-
+        var simplex = new SimplexNoise();
+        var width = window.innerWidth;
+        var height = window.innerHeight;
         // create a camera, which defines where we're looking at.
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 
         // create a render and set the size
         var webGLRenderer = new THREE.WebGLRenderer(); // init like this
-        webGLRenderer.setClearColor( 0x000000, 1 ); // second param is opacity, 0 => transparent
-        webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+        webGLRenderer.setClearColor(0x000000, 1); // second param is opacity, 0 => transparent
+        webGLRenderer.setSize(width, height);
         webGLRenderer.shadowMap.enabled = true;
-
-
-        // position and point the camera to the center of the scene
-        camera.position.x = -30;
-        camera.position.y = 40;
-        camera.position.z = 50;
-        camera.lookAt(new THREE.Vector3(10, 0, 0));
 
         //mount it
         this.mount.appendChild(webGLRenderer.domElement);
-        var geom = new THREE.TorusKnotGeometry(radius, tube, Math.round(radialSegments), Math.round(tubularSegments), Math.round(p), Math.round(q), heightScale);
-        var step = 0;
-        var knot = createParticleSystem(geom);
-        scene.add(knot)
+        // position and point the camera to the center of the scene
+        camera.position.x = width / 2;
+        camera.position.y = height / 2;
+        camera.position.z = -500;
+        camera.lookAt(new THREE.Vector3(width / 2, height / 2, 0));
+
+        var z = 0;
+
+        var getValue = function (x, y) {
+            var scale = 0.005;
+            return simplex.noise3D(x * scale, y * scale, z) * Math.PI * 2;
+        }
 
         var animate = function () {
-            if (rotate) {
-                knot.rotation.y = step += 0.0005;
+            webGLRenderer.clear();
+            for (var y = 0; y < height; y += 5) {
+                var p = {
+                    x: width / 2,
+                    y: y,
+                    vx: 0,
+                    vy: 0
+                };
+                var path = new THREE.Path([new THREE.Vector2(p.x, p.y)]);
+
+                for (var i = 0; i < 500; i++) {
+                    var value = getValue(p.x, p.y);
+                    p.vx += Math.cos(value) * 0.1;
+                    p.vy += Math.sin(value) * 0.1;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    path.lineTo(p.x, p.y);
+
+                    p.vx *= 0.99;
+                    p.vy *= 0.99;
+                }
+                const points = path.getPoints();
+
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+
+                const line = new THREE.Line(geometry, material);
+                scene.add(line);
             }
-            // render using requestAnimationFrame
-            requestAnimationFrame(animate);
+            z += 0.0005;
+            //render scene
             webGLRenderer.render(scene, camera);
+            //requestAnimationFrame(animate);
+
         };
         animate();
     }
 
     render() {
         return (
-            <div style={{position: 'fixed'}} ref={ref => (this.mount = ref)} />
+            <div style={{ position: 'fixed' }} ref={ref => (this.mount = ref)} />
         )
     }
 }
