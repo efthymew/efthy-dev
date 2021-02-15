@@ -6,9 +6,9 @@ import Footer from './Footer';
 import Header from './Header';
 import AnimatedBackground from './AnimatedBackground';
 
-import '../css/Home.css';
+import '../css/Overlay.css';
 
-class Home extends Component {
+class Overlay extends Component {
 
     render() {
         return (
@@ -21,4 +21,4 @@ class Home extends Component {
     }
 }
 
-export default Home;
+export default Overlay;

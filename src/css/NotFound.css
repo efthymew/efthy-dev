@@ -1,4 +1,8 @@
 .not-found {
     font-family: Roboto Slab;
     color: white;
+    background-color: black;
+    background-size: cover;
+    width: 100vw;
+    height: 100vh;
 }

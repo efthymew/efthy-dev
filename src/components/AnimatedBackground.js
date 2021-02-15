@@ -1,82 +1,187 @@
 import { Component } from "react";
-import * as THREE from "three";
-import SimplexNoise from 'simplex-noise';
+import '../css/AnimatedBackground.css';
+//import * as THREE from "three";
+//import SimplexNoise from 'simplex-noise';
+import Particles from 'react-tsparticles';
 
 class AnimatedBackground extends Component {
 
-    componentDidMount() {
-        // create a scene, that will hold all our elements such as objects, cameras and lights.
-        var scene = new THREE.Scene();
-        var simplex = new SimplexNoise();
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        // create a camera, which defines where we're looking at.
-        var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    // componentDidMount() {
+    //     // create a scene, that will hold all our elements such as objects, cameras and lights.
+    //     var scene = new THREE.Scene();
+    //     var simplex = new SimplexNoise();
+    //     var dpr = window.devicePixelRatio;
+    //     var width = window.innerWidth * dpr;
+    //     var height = window.innerHeight * dpr;
 
-        // create a render and set the size
-        var webGLRenderer = new THREE.WebGLRenderer(); // init like this
-        webGLRenderer.setClearColor(0x000000, 1); // second param is opacity, 0 => transparent
-        webGLRenderer.setSize(width, height);
-        webGLRenderer.shadowMap.enabled = true;
+    //     // create a camera, which defines where we're looking at.
+    //     var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 
-        //mount it
-        this.mount.appendChild(webGLRenderer.domElement);
-        // position and point the camera to the center of the scene
-        camera.position.x = width / 2;
-        camera.position.y = height / 2;
-        camera.position.z = -500;
-        camera.lookAt(new THREE.Vector3(width / 2, height / 2, 0));
+    //     // create a render and set the size
+    //     var webGLRenderer = new THREE.WebGLRenderer(); // init like this
+    //     webGLRenderer.setClearColor(0x000000, 1); // second param is opacity, 0 => transparent
+    //     webGLRenderer.setSize(width, height, false);
+    //     webGLRenderer.domElement.style.height = '100%';
+    //     webGLRenderer.domElement.style.width = '100%';
+    //     webGLRenderer.shadowMap.enabled = true;
 
-        var z = 0;
+    //     //mount it
+    //     this.mount.appendChild(webGLRenderer.domElement);
+    //     // position and point the camera to the center of the scene
 
-        var getValue = function (x, y) {
-            var scale = 0.005;
-            return simplex.noise3D(x * scale, y * scale, z) * Math.PI * 2;
-        }
+    //     camera.position.x = 0;
+    //     camera.position.y = 0;
+    //     camera.position.z = -125;
+    //     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-        var animate = function () {
-            webGLRenderer.clear();
-            for (var y = 0; y < height; y += 5) {
-                var p = {
-                    x: width / 2,
-                    y: y,
-                    vx: 0,
-                    vy: 0
-                };
-                var path = new THREE.Path([new THREE.Vector2(p.x, p.y)]);
+    //     var z = 0;
+    //     var getValue = function (x, y) {
+    //         var scale = 0.005;
+    //         return simplex.noise2D(x * scale, y * scale) * Math.PI * 2;
+    //     }
+    //     // steps:
+    //     // generate noise flowfield
+    //     // generate particles
+    //     // have particles movement influenced by flowfield
+    //     // have mouse movement influence flowfield
 
-                for (var i = 0; i < 500; i++) {
-                    var value = getValue(p.x, p.y);
-                    p.vx += Math.cos(value) * 0.1;
-                    p.vy += Math.sin(value) * 0.1;
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    path.lineTo(p.x, p.y);
+    //     var animate = function () {
+    //         webGLRenderer.clear();
+    //         const geometry = new THREE.SphereGeometry(5, 100, 100);
+    //         const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    //         const sphere = new THREE.Mesh(geometry, material);
+    //         scene.add(sphere);
+    //         //render scene
+    //         requestAnimationFrame(animate);
+    //         webGLRenderer.render(scene, camera);
 
-                    p.vx *= 0.99;
-                    p.vy *= 0.99;
-                }
-                const points = path.getPoints();
 
-                const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+    //     };
 
-                const line = new THREE.Line(geometry, material);
-                scene.add(line);
-            }
-            z += 0.0005;
-            //render scene
-            webGLRenderer.render(scene, camera);
-            //requestAnimationFrame(animate);
+    //     var timestamp = null;
+    //     var lastMouseX = null;
+    //     var lastMouseY = null;
 
-        };
-        animate();
-    }
+    //     document.body.addEventListener("mousemove", function (e) {
+    //         if (timestamp === null) {
+    //             timestamp = Date.now();
+    //             lastMouseX = e.screenX;
+    //             lastMouseY = e.screenY;
+    //             return;
+    //         }
+
+    //         var now = Date.now();
+    //         var dt = now - timestamp;
+    //         var dx = e.screenX - lastMouseX;
+    //         var dy = e.screenY - lastMouseY;
+    //         var speedX = Math.round(dx / dt * 100);
+    //         var speedY = Math.round(dy / dt * 100);
+    //         console.log(speedX, speedY);
+    //         timestamp = now;
+    //         lastMouseX = e.screenX;
+    //         lastMouseY = e.screenY;
+    //     });
+    //     animate();
+
+
+    //     window.addEventListener('resize', function () {
+
+    //         camera.aspect = window.innerWidth / window.innerHeight;
+    //         camera.updateProjectionMatrix();
+
+    //         webGLRenderer.setSize(window.innerWidth * dpr, window.innerHeight * dpr, false);
+    //     }, false);
+    // }
 
     render() {
+        // return (
+        //     <div style={{ height: '100%', width: '100%', position: 'fixed' }} ref={ref => (this.mount = ref)} />
+        // )
         return (
-            <div style={{ position: 'fixed' }} ref={ref => (this.mount = ref)} />
-        )
+            <Particles
+                className='surrounder'
+                width='100%'
+                height='100%'
+                options={{
+                    background: {
+                        color: {
+                            value: "#000000",
+                        },
+                    },
+                    fpsLimit: 144,
+                    interactivity: {
+                        detectsOn: "canvas",
+                        events: {
+                            onClick: {
+                                enable: true,
+                                mode: "push",
+                            },
+                            onHover: {
+                                enable: true,
+                                mode: "repulse",
+                            },
+                            resize: true,
+                        },
+                        modes: {
+                            bubble: {
+                                distance: 400,
+                                duration: 2,
+                                opacity: 0.8,
+                                size: 40,
+                            },
+                            push: {
+                                quantity: 4,
+                            },
+                            repulse: {
+                                distance: 100,
+                                duration: 0.4,
+                            },
+                        },
+                    },
+                    particles: {
+                        color: {
+                            value: "#ffffff",
+                        },
+                        links: {
+                            color: "#ffffff",
+                            distance: 150,
+                            enable: true,
+                            opacity: 0.5,
+                            width: 1,
+                        },
+                        collisions: {
+                            enable: true,
+                        },
+                        move: {
+                            direction: "none",
+                            enable: true,
+                            outMode: "bounce",
+                            random: false,
+                            speed: 6,
+                            straight: false,
+                        },
+                        number: {
+                            density: {
+                                enable: true,
+                                value_area: 800,
+                            },
+                            value: 80,
+                        },
+                        opacity: {
+                            value: 0.5,
+                        },
+                        shape: {
+                            type: "circle",
+                        },
+                        size: {
+                            random: true,
+                            value: 5,
+                        },
+                    },
+                    detectRetina: true,
+                }}
+            />
+        );
     }
 }
 

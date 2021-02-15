@@ -7,3 +7,7 @@
 .selected {
     filter: invert(100%) brightness(75%);
 }
+
+.under-header {
+    position:absolute;
+}
