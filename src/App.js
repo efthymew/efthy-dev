@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 
 import NotFound from './components/NotFound';
-import AboutMe from './components/AboutMe';
+//import AboutMe from './components/AboutMe';
 
 // wallpapers
 /*
@@ -32,7 +32,7 @@ function App() {
             <Router>
                 <Switch>
                     <Route exact path="/" component={Overlay} />
-                    <Route path="/me" component={AboutMe} />
+                    <Route path="/me" component={Overlay} />
                     <Route path="/work" component={Overlay} />
                     <Route path="/projects" component={Overlay} />
                     <Route component={NotFound} />
