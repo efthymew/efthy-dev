@@ -1,15 +1,15 @@
-import { Component } from "react";
+import { Component } from 'react';
 import { Jumbotron, Button } from 'react-bootstrap'
-import Overlay from './Overlay';
-import '../css/Work.css';
+import Overlay from './Overlay'
+import '../css/Projects.css'
 
-class Work extends Component {
+class Projects extends Component {
 
     render() {
         return (
             <Overlay>
                 <Jumbotron>
-                    <h1>Work PAGE!</h1>
+                    <h1>Projects!</h1>
                     <p>
                         This is a simple hero unit, a simple jumbotron-style component for calling
                         extra attention to featured content or information.
@@ -23,4 +23,4 @@ class Work extends Component {
     }
 }
 
-export default Work;
+export default Projects;

@@ -13,8 +13,11 @@ class Overlay extends Component {
     render() {
         return (
             <div>
-                <Header />
                 <AnimatedBackground />
+                <Header />
+                <div style={{position: 'fixed'}}>
+                    {this.props.children}
+                </div>
                 <Footer />
             </div>
         )

@@ -1,6 +1,5 @@
 //import logo from './logo.svg';
 import './App.css';
-import Overlay from './components/Overlay';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import {
@@ -10,7 +9,10 @@ import {
 } from "react-router-dom";
 
 import NotFound from './components/NotFound';
-//import AboutMe from './components/AboutMe';
+import SplashPage from './components/SplashPage';
+import AboutMe from './components/AboutMe';
+import Work from './components/Work';
+import Projects from './components/Projects';
 
 // wallpapers
 /*
@@ -31,10 +33,10 @@ function App() {
         <div className="App">
             <Router>
                 <Switch>
-                    <Route exact path="/" component={Overlay} />
-                    <Route path="/me" component={Overlay} />
-                    <Route path="/work" component={Overlay} />
-                    <Route path="/projects" component={Overlay} />
+                    <Route exact path="/" component={SplashPage} />
+                    <Route path="/me" component={AboutMe} />
+                    <Route path="/work" component={Work} />
+                    <Route path="/projects" component={Projects} />
                     <Route component={NotFound} />
                 </Switch>
             </Router>
