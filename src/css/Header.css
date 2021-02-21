@@ -1,11 +1,27 @@
-.header-css {
+.header-main-css {
     margin-right: 0 !important;
+    margin-left: 0 !important;
     font-family: Roboto Slab !important;
     color: white !important;
 }
 
+.header-alt-css {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    font-family: Roboto Slab !important;
+    color: white !important;
+}
+
+.header-alt-css:hover {
+    filter: brightness(75%);
+}
+
 .selected {
-    filter: invert(100%) brightness(75%);
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    font-family: Roboto Slab !important;
+    color: white !important;
+    filter: brightness(75%);
 }
 
 .under-header {

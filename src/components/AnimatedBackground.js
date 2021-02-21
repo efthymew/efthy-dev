@@ -59,7 +59,7 @@ class AnimatedBackground extends Component {
                             enable: true,
                             outMode: "bounce",
                             random: false,
-                            speed: 6,
+                            speed: 2,
                             straight: false,
                         },
                         number: {
@@ -67,7 +67,7 @@ class AnimatedBackground extends Component {
                                 enable: true,
                                 value_area: 800,
                             },
-                            value: 80,
+                            value: 60,
                         },
                         opacity: {
                             value: 0.5,

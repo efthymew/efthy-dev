@@ -7,7 +7,7 @@ class Work extends Component {
 
     render() {
         return (
-            <Overlay>
+            <Overlay current='work'>
                 <Jumbotron>
                     <h1>Work PAGE!</h1>
                     <p>

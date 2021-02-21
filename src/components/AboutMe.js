@@ -7,7 +7,7 @@ class AboutMe extends Component {
 
     render() {
         return (
-            <Overlay>
+            <Overlay current='aboutme'>
                 <Jumbotron>
                     <h1>About ME!</h1>
                     <p>

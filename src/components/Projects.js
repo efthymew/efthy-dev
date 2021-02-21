@@ -7,7 +7,7 @@ class Projects extends Component {
 
     render() {
         return (
-            <Overlay>
+            <Overlay current='projects'>
                 <Jumbotron>
                     <h1>Projects!</h1>
                     <p>
