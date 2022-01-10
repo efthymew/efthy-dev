@@ -13,6 +13,7 @@ import SplashPage from './components/SplashPage';
 import AboutMe from './components/AboutMe';
 import Work from './components/Work';
 import Projects from './components/Projects';
+import AnimatedBackground from './components/AnimatedBackground';
 
 // wallpapers
 /*
@@ -32,6 +33,7 @@ function App() {
     return (
         <div className="App">
             <Router>
+                <AnimatedBackground/>
                 <Switch>
                     <Route exact path="/" component={SplashPage} />
                     <Route path="/me" component={AboutMe} />

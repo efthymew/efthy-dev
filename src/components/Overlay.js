@@ -26,7 +26,6 @@ class Overlay extends Component {
     render() {
         return (
             <div>
-                <AnimatedBackground />
                 <Header current={this.props.current} />
                 <Fade appear in={this.state.fadein}>
                     <div style={{ position: 'fixed' }}>
