@@ -1,8 +1,12 @@
 .header-main-css {
     margin-right: 0 !important;
     margin-left: 0 !important;
+}
+
+.hashlink-css {
     font-family: Roboto Slab !important;
     color: white !important;
+    text-decoration: none !important;
 }
 
 .header-alt-css {

@@ -9,11 +9,7 @@ import {
 } from "react-router-dom";
 
 import NotFound from './components/NotFound';
-import SplashPage from './components/SplashPage';
-import AboutMe from './components/AboutMe';
-import Work from './components/Work';
-import Projects from './components/Projects';
-import AnimatedBackground from './components/AnimatedBackground';
+import Root from './components/Root';
 
 // wallpapers
 /*
@@ -33,12 +29,8 @@ function App() {
     return (
         <div className="App">
             <Router>
-                <AnimatedBackground/>
                 <Switch>
-                    <Route exact path="/" component={SplashPage} />
-                    <Route path="/me" component={AboutMe} />
-                    <Route path="/work" component={Work} />
-                    <Route path="/projects" component={Projects} />
+                    <Route exact path="/" component={Root} />
                     <Route component={NotFound} />
                 </Switch>
             </Router>
