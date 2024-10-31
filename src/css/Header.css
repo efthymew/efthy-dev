@@ -16,18 +16,10 @@
     color: white !important;
 }
 
-.header-alt-css:hover {
-    filter: brightness(75%);
-}
-
 .selected {
     margin-right: 0 !important;
     margin-left: 0 !important;
     font-family: Roboto Slab !important;
     color: white !important;
     filter: brightness(75%);
-}
-
-.under-header {
-    position:absolute;
 }

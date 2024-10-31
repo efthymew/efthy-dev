@@ -14,7 +14,7 @@ class Footer extends Component {
     }
 
     componentDidMount() {
-        setTimeout(() => {this.setState({fadein: 1})}, 500);
+        setTimeout(() => {this.setState({fadein: 1})}, 2200);
     }
 
     doneFade() {
@@ -25,7 +25,7 @@ class Footer extends Component {
     render() {
         const curr = this.state.fadein;
         return (
-            <Navbar fixed="bottom" className="justify-content-center">
+            <Navbar fixed="bottom" className="justify-content-center" style={{pointerEvents: curr > 0 ? 'auto' : 'none'}}>
                 <Fade in={curr >= 1} onEntered={this.doneFade}>
                     <NavbarBrand href="https://twitter.com/efthymew" target="_blank" className="nav-icon">
                         <img src={TwitterLogo} width="50" alt='twitter' style={{ borderRadius: '50%' }} />

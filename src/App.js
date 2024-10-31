@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import {
     BrowserRouter as Router,
-    Switch,
+    Routes,
     Route
 } from "react-router-dom";
 
@@ -29,10 +29,10 @@ function App() {
     return (
         <div className="App">
             <Router>
-                <Switch>
-                    <Route exact path="/" component={Root} />
-                    <Route component={NotFound} />
-                </Switch>
+                <Routes>
+                    <Route exact path="/" element={<Root />} />
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
             </Router>
         </div>
     );
