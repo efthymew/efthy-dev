@@ -3,10 +3,15 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from 'three';
 
 const gravityCenter = new THREE.Vector3(0, 0, 0); // Change this to set the gravity center location
-const gravityDt = 0.0001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass * particleMass
+const gravityDt = 0.00001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass * particleMass
 const gravityMass = 10
 const particleMass = 10
+const spawnParticleMaxX = 10
+const spawnParticleMaxY = 10
+const spawnParticleMaxZ = 20
+const particleCount = 500;
 
+const cameraPos = new THREE.Vector3(0, 2 * spawnParticleMaxY, 0)
 // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
 // scale velocity off accelartion instead of velocity again
 function RotatingCamera() {
@@ -17,7 +22,7 @@ function RotatingCamera() {
 
     useEffect(() => {
         // Set the initial camera position
-        camera.position.set(0, 25, 0);
+        camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
 
         // Make the camera look at a specific point (e.g., the origin)
         camera.lookAt(0, 0, 0);
@@ -41,7 +46,6 @@ function RotatingCamera() {
 
 
 function Particles() {
-    const particleCount = 500;
     const particlesRef = useRef();
     const startTimeRef = useRef(null);
     const geometry = new THREE.BufferGeometry();
@@ -50,9 +54,9 @@ function Particles() {
     // Generate random positions
     let positions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * 10; // X
-        positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // Y
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // Z
+        positions[i * 3] = (Math.random() - 0.5) * spawnParticleMaxX; // X
+        positions[i * 3 + 1] = (Math.random() - 0.5) * spawnParticleMaxY; // Y
+        positions[i * 3 + 2] = (Math.random() - 0.5) * spawnParticleMaxZ; // Z
     }
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
