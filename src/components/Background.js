@@ -3,9 +3,9 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from 'three';
 
 const gravityCenter = new THREE.Vector3(0, 0, 0); // Change this to set the gravity center location
-const gravityDt = 0.000001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass * particleMass
-const gravityMass = 1000
-const particleMass = 1000
+const gravityDt = 0.0001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass * particleMass
+const gravityMass = 10
+const particleMass = 10
 
 // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
 // scale velocity off accelartion instead of velocity again
