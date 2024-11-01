@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from 'three';
 
 const gravityCenter = new THREE.Vector3(0, 0, 0); // Change this to set the gravity center location
-const gravityDt = 0.0001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass 
+const gravityDt = 0.001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass 
 const gravityMass = 100
 // modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
 const gravityStrengthMultiplierX = 1
