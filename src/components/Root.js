@@ -1,6 +1,4 @@
 import { Component } from 'react';
-import { Button, Container, Row, Col } from 'react-bootstrap';
-import { HashLink } from 'react-router-hash-link';
 
 import Background from './Background';
 import Header from './Header';
