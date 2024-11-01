@@ -3,15 +3,18 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from 'three';
 
 const gravityCenter = new THREE.Vector3(0, 0, 0); // Change this to set the gravity center location
-const gravityDt = 0.00001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass * particleMass
-const gravityMass = 10
-const particleMass = 10
+const gravityDt = 0.0001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass 
+const gravityMass = 100
+// modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
+const gravityStrengthMultiplierX = 1
+const gravityStrengthMultiplierY = 0.0001
+const gravityStrengthMultiplierZ = 1
 const spawnParticleMaxX = 10
-const spawnParticleMaxY = 10
-const spawnParticleMaxZ = 20
+const spawnParticleMaxY = 20
+const spawnParticleMaxZ = 10
 const particleCount = 500;
 
-const cameraPos = new THREE.Vector3(0, 2 * spawnParticleMaxY, 0)
+const cameraPos = new THREE.Vector3(0, 0, 2 * spawnParticleMaxZ)
 // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
 // scale velocity off accelartion instead of velocity again
 function RotatingCamera() {
@@ -25,13 +28,13 @@ function RotatingCamera() {
         camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
 
         // Make the camera look at a specific point (e.g., the origin)
-        camera.lookAt(0, 0, 0);
+        camera.lookAt(x, y, z);
 
         // Update camera projection matrix if you change any camera parameters
         camera.updateProjectionMatrix();
-    }, [camera]);
+    }, [camera, x, y, z]);
 
-    useFrame(({ clock }) => {
+    useFrame(() => {
         const rotationMatrix = new THREE.Matrix4().makeRotationY(0.00); // Adjust rotation speed as needed
         const rotationMatrixX = new THREE.Matrix4().makeRotationX(0.00);
 
@@ -47,7 +50,6 @@ function RotatingCamera() {
 
 function Particles() {
     const particlesRef = useRef();
-    const startTimeRef = useRef(null);
     const geometry = new THREE.BufferGeometry();
     const particleVelocities = Array(particleCount * 3).fill(0.0);
 
@@ -60,15 +62,7 @@ function Particles() {
     }
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
-    useFrame(({ clock }) => {
-        if (startTimeRef.current === null) {
-            startTimeRef.current = clock.getElapsedTime();
-        }
-    
-        const elapsedTime = (clock.getElapsedTime() - startTimeRef.current) * 1000;
-    
-        // Run logic only if elapsed time exceeds gravityDt
-        if (elapsedTime < gravityDt) return;
+    useFrame(() => {
         // rest of the code remains the same
         const positionArray = particlesRef.current.geometry.attributes.position.array;
 
@@ -86,9 +80,9 @@ function Particles() {
             // const gravityVector = new THREE.Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
-            const dx = (gravityMass*particleMass*x / ((x-gravityCenter.x)**2 + (y-gravityCenter.y)**2 + (z-gravityCenter.z)**2 + particleMass)**1.5) * gravityDt
-            const dy = (gravityMass*particleMass*y / ((x-gravityCenter.x)**2 + (y-gravityCenter.y)**2 + (z-gravityCenter.z)**2 + particleMass)**1.5) * gravityDt
-            const dz = (gravityMass*particleMass*z / ((x-gravityCenter.x)**2 + (y-gravityCenter.y)**2 + (z-gravityCenter.z)**2 + particleMass)**1.5) * gravityDt
+            let dx = gravityMass*x / (r**3 + (1/gravityStrengthMultiplierX)**1.5) * gravityDt;
+            let dy = gravityMass*y / (r**3 + (1/gravityStrengthMultiplierY)**1.5) * gravityDt;
+            let dz = gravityMass*z / (r**3 + (1/gravityStrengthMultiplierZ)**1.5) * gravityDt;
 
             // Only apply force if length is non-zero to avoid division by zero
             // Update particle speeds
@@ -98,10 +92,10 @@ function Particles() {
 
 
             // calculate angular vector
-            var fromCenter = new THREE.Vector2(x, z);
+            var fromCenter = new THREE.Vector2(x-gravityCenter.x, z-gravityCenter.z);
             fromCenter.normalize();
             var rotationVector = new THREE.Vector2(-fromCenter.y, fromCenter.x)
-            rotationVector.multiplyScalar((gravityMass*particleMass)**0.5/(r**2))
+            rotationVector.multiplyScalar((gravityMass)**0.5/(r**2))
             vx -= (rotationVector.x * gravityDt)
             vz -= (rotationVector.y * gravityDt)
 
@@ -131,25 +125,6 @@ function Particles() {
             </bufferGeometry>
             <pointsMaterial color="white" size={0.1} />
         </points>
-    );
-}
-
-function RotatingCube() {
-    const cubeRef = useRef();
-
-    // Rotate the cube on each frame
-    useFrame(() => {
-        if (cubeRef.current) {
-            cubeRef.current.rotation.x += 0.00;
-            cubeRef.current.rotation.y += 0.00;
-        }
-    });
-
-    return (
-        <mesh ref={cubeRef}>
-            <boxGeometry args={[1, 1, 1]} /> {/* Cube with width, height, depth of 1 */}
-            <meshStandardMaterial color="white" />
-        </mesh>
     );
 }
 
