@@ -14,25 +14,22 @@ const spawnParticleMaxY = 20
 const spawnParticleMaxZ = 10
 const particleCount = 500;
 
-const cameraPos = new THREE.Vector3(0, 0, 2 * spawnParticleMaxZ)
+const cameraPos = new THREE.Vector3(0, 0, 20)
 // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
 // scale velocity off accelartion instead of velocity again
 function RotatingCamera() {
     const { camera } = useThree();
-    const x = gravityCenter.x
-    const y = gravityCenter.y
-    const z = gravityCenter.z
-
+    
     useEffect(() => {
         // Set the initial camera position
         camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
 
-        // Make the camera look at a specific point (e.g., the origin)
-        camera.lookAt(x, y, z);
+        // Make the camera look at a specific point (e.g., the center of gravity/origin)
+        camera.lookAt(0, 0, 0);
 
         // Update camera projection matrix if you change any camera parameters
         camera.updateProjectionMatrix();
-    }, [camera, x, y, z]);
+    }, [camera]);
 
     useFrame(() => {
         const rotationMatrix = new THREE.Matrix4().makeRotationY(0.00); // Adjust rotation speed as needed
@@ -80,9 +77,9 @@ function Particles() {
             // const gravityVector = new THREE.Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
-            let dx = gravityMass*x / (r**3 + (1/gravityStrengthMultiplierX)**1.5) * gravityDt;
-            let dy = gravityMass*y / (r**3 + (1/gravityStrengthMultiplierY)**1.5) * gravityDt;
-            let dz = gravityMass*z / (r**3 + (1/gravityStrengthMultiplierZ)**1.5) * gravityDt;
+            let dx = gravityMass*(x-gravityCenter.x) / (r**3 + (1/gravityStrengthMultiplierX)**1.5) * gravityDt;
+            let dy = gravityMass*(y-gravityCenter.y) / (r**3 + (1/gravityStrengthMultiplierY)**1.5) * gravityDt;
+            let dz = gravityMass*(z-gravityCenter.z) / (r**3 + (1/gravityStrengthMultiplierZ)**1.5) * gravityDt;
 
             // Only apply force if length is non-zero to avoid division by zero
             // Update particle speeds
