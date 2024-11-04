@@ -2,12 +2,6 @@ import { Component, useRef, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from 'three';
 
-const gravityCenter = new THREE.Vector3(0, 0, 0); // Change this to set the gravity center location
-const gravityMass = 100
-// modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
-const gravityStrengthMultiplierX = 1
-const gravityStrengthMultiplierY = 0.0001
-const gravityStrengthMultiplierZ = 1
 const spawnParticleMaxX = 10
 const spawnParticleMaxY = 20
 const spawnParticleMaxZ = 10
@@ -18,7 +12,7 @@ const cameraPos = new THREE.Vector3(0, 0, 20)
 // scale velocity off accelartion instead of velocity again
 function RotatingCamera() {
     const { camera } = useThree();
-    
+
     useEffect(() => {
         // Set the initial camera position
         camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
@@ -47,7 +41,16 @@ function RotatingCamera() {
 function Particles() {
     const particlesRef = useRef();
     const [particleVelocities] = useState(new Float32Array(particleCount * 3)); // Store velocities as a Float32Array
+
     const [currentDt, setCurrentDt] = useState(0.001); // Initial delta time
+    // State for global variables that can change in real time
+    const [gravityCenter] = useState(new THREE.Vector3(0, 0, 0)); // Change this to set the gravity center location
+    const [gravityMass, setGravityMass] = useState(100.0); // change to increase strength of gravity toward center
+
+    // modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
+    const [gravityStrengthMultiplierX, setGravityStrengthMultiplierX] = useState(1.0);
+    const [gravityStrengthMultiplierY, setGravityStrengthMultiplierY] = useState(0.0001);
+    const [gravityStrengthMultiplierZ, setGravityStrengthMultiplierZ] = useState(1.0);
 
     // Generate random positions only once on mount
     useEffect(() => {
@@ -65,12 +68,12 @@ function Particles() {
     // Effect to update currentDt after 1 second
     useEffect(() => {
         const timer = setTimeout(() => {
-            setCurrentDt(0.001); // Update delta time after 1 second
+            setCurrentDt(currentDt / 1); // Update delta time after 1 second
         }, 1000); // 1000 milliseconds for 1 second
 
         // Cleanup timer on component unmount
         return () => clearTimeout(timer);
-    }, []);
+    });
 
     useFrame(() => {
         // rest of the code remains the same
@@ -90,9 +93,9 @@ function Particles() {
             // const gravityVector = new THREE.Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
-            let dx = gravityMass*(x-gravityCenter.x) / (r**3 + (1/gravityStrengthMultiplierX)**1.5) * currentDt;
-            let dy = gravityMass*(y-gravityCenter.y) / (r**3 + (1/gravityStrengthMultiplierY)**1.5) * currentDt;
-            let dz = gravityMass*(z-gravityCenter.z) / (r**3 + (1/gravityStrengthMultiplierZ)**1.5) * currentDt;
+            let dx = gravityMass * (x - gravityCenter.x) / (r ** 3 + (1 / gravityStrengthMultiplierX) ** 1.5) * currentDt;
+            let dy = gravityMass * (y - gravityCenter.y) / (r ** 3 + (1 / gravityStrengthMultiplierY) ** 1.5) * currentDt;
+            let dz = gravityMass * (z - gravityCenter.z) / (r ** 3 + (1 / gravityStrengthMultiplierZ) ** 1.5) * currentDt;
 
             // Only apply force if length is non-zero to avoid division by zero
             // Update particle speeds
@@ -101,11 +104,11 @@ function Particles() {
             vz -= dz;
 
 
-            // calculate angular vector
-            var fromCenter = new THREE.Vector2(x-gravityCenter.x, z-gravityCenter.z);
+            // calculate angular vector TODO: revisit this (its constant angular acceleration and i think orbits have locked angular velocities assuming spin of gravity is constant)
+            var fromCenter = new THREE.Vector2(x - gravityCenter.x, z - gravityCenter.z);
             fromCenter.normalize();
             var rotationVector = new THREE.Vector2(-fromCenter.y, fromCenter.x)
-            rotationVector.multiplyScalar((gravityMass)**0.5/(r**2))
+            rotationVector.multiplyScalar((gravityMass) ** 0.5 / (r ** 2))
             vx -= (rotationVector.x * currentDt)
             vz -= (rotationVector.y * currentDt)
 
