@@ -1,9 +1,8 @@
-import { Component, useRef, useEffect } from "react";
+import { Component, useRef, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from 'three';
 
 const gravityCenter = new THREE.Vector3(0, 0, 0); // Change this to set the gravity center location
-const gravityDt = 0.001; // Adjust this value to change the force applied good rule of thumb: 1 / gravityMass 
 const gravityMass = 100
 // modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
 const gravityStrengthMultiplierX = 1
@@ -47,17 +46,31 @@ function RotatingCamera() {
 
 function Particles() {
     const particlesRef = useRef();
-    const geometry = new THREE.BufferGeometry();
-    const particleVelocities = Array(particleCount * 3).fill(0.0);
+    const [particleVelocities] = useState(new Float32Array(particleCount * 3)); // Store velocities as a Float32Array
+    const [currentDt, setCurrentDt] = useState(0.001); // Initial delta time
 
-    // Generate random positions
-    let positions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * spawnParticleMaxX; // X
-        positions[i * 3 + 1] = (Math.random() - 0.5) * spawnParticleMaxY; // Y
-        positions[i * 3 + 2] = (Math.random() - 0.5) * spawnParticleMaxZ; // Z
-    }
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    // Generate random positions only once on mount
+    useEffect(() => {
+        const positions = new Float32Array(particleCount * 3);
+        const geometry = new THREE.BufferGeometry();
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * spawnParticleMaxX; // X
+            positions[i * 3 + 1] = (Math.random() - 0.5) * spawnParticleMaxY; // Y
+            positions[i * 3 + 2] = (Math.random() - 0.5) * spawnParticleMaxZ; // Z
+        }
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        particlesRef.current.geometry = geometry;
+    }, []);
+
+    // Effect to update currentDt after 1 second
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setCurrentDt(0.001); // Update delta time after 1 second
+        }, 1000); // 1000 milliseconds for 1 second
+
+        // Cleanup timer on component unmount
+        return () => clearTimeout(timer);
+    }, []);
 
     useFrame(() => {
         // rest of the code remains the same
@@ -77,9 +90,9 @@ function Particles() {
             // const gravityVector = new THREE.Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
-            let dx = gravityMass*(x-gravityCenter.x) / (r**3 + (1/gravityStrengthMultiplierX)**1.5) * gravityDt;
-            let dy = gravityMass*(y-gravityCenter.y) / (r**3 + (1/gravityStrengthMultiplierY)**1.5) * gravityDt;
-            let dz = gravityMass*(z-gravityCenter.z) / (r**3 + (1/gravityStrengthMultiplierZ)**1.5) * gravityDt;
+            let dx = gravityMass*(x-gravityCenter.x) / (r**3 + (1/gravityStrengthMultiplierX)**1.5) * currentDt;
+            let dy = gravityMass*(y-gravityCenter.y) / (r**3 + (1/gravityStrengthMultiplierY)**1.5) * currentDt;
+            let dz = gravityMass*(z-gravityCenter.z) / (r**3 + (1/gravityStrengthMultiplierZ)**1.5) * currentDt;
 
             // Only apply force if length is non-zero to avoid division by zero
             // Update particle speeds
@@ -93,8 +106,8 @@ function Particles() {
             fromCenter.normalize();
             var rotationVector = new THREE.Vector2(-fromCenter.y, fromCenter.x)
             rotationVector.multiplyScalar((gravityMass)**0.5/(r**2))
-            vx -= (rotationVector.x * gravityDt)
-            vz -= (rotationVector.y * gravityDt)
+            vx -= (rotationVector.x * currentDt)
+            vz -= (rotationVector.y * currentDt)
 
             positionArray[i] += vx;
             positionArray[i + 1] += vy;
@@ -112,14 +125,6 @@ function Particles() {
 
     return (
         <points ref={particlesRef}>
-            <bufferGeometry>
-                <bufferAttribute
-                    attach="attributes-position"
-                    count={positions.length / 3}
-                    array={positions}
-                    itemSize={3}
-                />
-            </bufferGeometry>
             <pointsMaterial color="white" size={0.1} />
         </points>
     );
