@@ -1,8 +1,10 @@
 import { Component } from "react";
 import '../css/Footer.css';
-import TwitterLogo from '../imgs/Twitter_Logo_WhiteOnBlue.svg';
+
 import GithubLogo from '../imgs/github-logo.svg';
 import TwitchLogo from '../imgs/twitch-tile.svg';
+import LinkenInLogo from '../imgs/linkedin-svgrepo-com.svg';
+
 import { Navbar, NavbarBrand, Fade } from 'react-bootstrap';
 class Footer extends Component {
     constructor(props) {
@@ -27,8 +29,8 @@ class Footer extends Component {
         return (
             <Navbar fixed="bottom" className="justify-content-center" style={{pointerEvents: curr > 0 ? 'auto' : 'none'}}>
                 <Fade in={curr >= 1} onEntered={this.doneFade}>
-                    <NavbarBrand href="https://twitter.com/efthymew" target="_blank" className="nav-icon">
-                        <img src={TwitterLogo} width="50" alt='twitter' style={{ borderRadius: '50%' }} />
+                    <NavbarBrand href="https://www.linkedin.com/in/graham-efthymiou-308229175/" target="_blank" className="nav-icon">
+                        <img src={LinkenInLogo} width="50" alt='twitter' style={{ borderRadius: '50%' }} />
                     </NavbarBrand>
                 </Fade>
                 <Fade in={curr >= 2} onEntered={this.doneFade}>
