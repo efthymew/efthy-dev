@@ -42,14 +42,13 @@ function Particles() {
     const particlesRef = useRef();
     const [particleVelocities] = useState(new Float32Array(particleCount * 3)); // Store velocities as a Float32Array
 
-    const [currentDt, setCurrentDt] = useState(0.001); // Initial delta time
     // State for global variables that can change in real time
     const [gravityCenter] = useState(new THREE.Vector3(0, 0, 0)); // Change this to set the gravity center location
     const [gravityMass, setGravityMass] = useState(100.0); // change to increase strength of gravity toward center
 
     // modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
     const [gravityStrengthMultiplierX, setGravityStrengthMultiplierX] = useState(1.0);
-    const [gravityStrengthMultiplierY, setGravityStrengthMultiplierY] = useState(0.0001);
+    const [gravityStrengthMultiplierY, setGravityStrengthMultiplierY] = useState(0.01);
     const [gravityStrengthMultiplierZ, setGravityStrengthMultiplierZ] = useState(1.0);
 
     // Generate random positions only once on mount
@@ -65,18 +64,11 @@ function Particles() {
         particlesRef.current.geometry = geometry;
     }, []);
 
-    // Effect to update currentDt after 1 second
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setCurrentDt(currentDt / 1); // Update delta time after 1 second
-        }, 1000); // 1000 milliseconds for 1 second
+    useFrame((state, delta) => {
+        // kill logic here if the mount hasnt set the geometry yet
+        if (!particlesRef.current?.geometry?.attributes?.position) return;
 
-        // Cleanup timer on component unmount
-        return () => clearTimeout(timer);
-    });
-
-    useFrame(() => {
-        // rest of the code remains the same
+        delta = Math.min(delta, 0.05) * 0.1;
         const positionArray = particlesRef.current.geometry.attributes.position.array;
 
         for (let i = 0; i < positionArray.length; i += 3) {
@@ -93,9 +85,9 @@ function Particles() {
             // const gravityVector = new THREE.Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
-            let dx = gravityMass * (x - gravityCenter.x) / (r ** 3 + (1 / gravityStrengthMultiplierX) ** 1.5) * currentDt;
-            let dy = gravityMass * (y - gravityCenter.y) / (r ** 3 + (1 / gravityStrengthMultiplierY) ** 1.5) * currentDt;
-            let dz = gravityMass * (z - gravityCenter.z) / (r ** 3 + (1 / gravityStrengthMultiplierZ) ** 1.5) * currentDt;
+            let dx = gravityMass * (x - gravityCenter.x) / (r ** 3 + (1 / gravityStrengthMultiplierX) ** 1.5) * delta;
+            let dy = gravityMass * (y - gravityCenter.y) / (r ** 3 + (1 / gravityStrengthMultiplierY) ** 1.5) * delta;
+            let dz = gravityMass * (z - gravityCenter.z) / (r ** 3 + (1 / gravityStrengthMultiplierZ) ** 1.5) * delta;
 
             // Only apply force if length is non-zero to avoid division by zero
             // Update particle speeds
@@ -109,8 +101,13 @@ function Particles() {
             fromCenter.normalize();
             var rotationVector = new THREE.Vector2(-fromCenter.y, fromCenter.x)
             rotationVector.multiplyScalar((gravityMass) ** 0.5 / (r ** 2))
-            vx -= (rotationVector.x * currentDt)
-            vz -= (rotationVector.y * currentDt)
+            vx -= (rotationVector.x * delta)
+            vz -= (rotationVector.y * delta)
+
+            //dampening since perpendicular forces add energy into the system, leading to the particles expanding outward
+            // vx *= 0.999;
+            // vy *= 0.999;
+            // vz *= 0.999;
 
             positionArray[i] += vx;
             positionArray[i + 1] += vy;
