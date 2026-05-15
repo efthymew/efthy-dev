@@ -68,7 +68,7 @@ function Particles() {
         // kill logic here if the mount hasnt set the geometry yet
         if (!particlesRef.current?.geometry?.attributes?.position) return;
 
-        delta = Math.min(delta, 0.05) * 0.1;
+        delta = Math.min(delta, 0.05) * 3;
         const positionArray = particlesRef.current.geometry.attributes.position.array;
 
         for (let i = 0; i < positionArray.length; i += 3) {
@@ -85,9 +85,9 @@ function Particles() {
             // const gravityVector = new THREE.Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
-            let dx = gravityMass * (x - gravityCenter.x) / (r ** 3 + (1 / gravityStrengthMultiplierX) ** 1.5) * delta;
-            let dy = gravityMass * (y - gravityCenter.y) / (r ** 3 + (1 / gravityStrengthMultiplierY) ** 1.5) * delta;
-            let dz = gravityMass * (z - gravityCenter.z) / (r ** 3 + (1 / gravityStrengthMultiplierZ) ** 1.5) * delta;
+            let dx = gravityMass * (x - gravityCenter.x) / ((r ** 2 + (1 / gravityStrengthMultiplierX)) ** 1.5) * delta;
+            let dy = gravityMass * (y - gravityCenter.y) / ((r ** 2 + (1 / gravityStrengthMultiplierY)) ** 1.5) * delta;
+            let dz = gravityMass * (z - gravityCenter.z) / ((r ** 2 + (1 / gravityStrengthMultiplierZ)) ** 1.5) * delta;
 
             // Only apply force if length is non-zero to avoid division by zero
             // Update particle speeds
@@ -109,9 +109,9 @@ function Particles() {
             // vy *= 0.999;
             // vz *= 0.999;
 
-            positionArray[i] += vx;
-            positionArray[i + 1] += vy;
-            positionArray[i + 2] += vz;
+            positionArray[i] += vx * delta;
+            positionArray[i + 1] += vy * delta;
+            positionArray[i + 2] += vz * delta;
 
             particleVelocities[i] = vx;
             particleVelocities[i + 1] = vy;
@@ -143,11 +143,11 @@ class Background extends Component {
         return (
             <Canvas
                 style={{
-                    position: 'absolute',
+                    position: 'fixed',
                     top: 0,
                     left: 0,
-                    width: '100vw',
-                    height: '100vh',
+                    width: '100%',
+                    height: '100%',
                     zIndex: -1,
                 }}
             >
