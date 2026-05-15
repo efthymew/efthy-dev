@@ -34,7 +34,7 @@ class Footer extends Component {
                     </NavbarBrand>
                 </Fade>
                 <Fade in={curr >= 2} onEntered={this.doneFade}>
-                    <NavbarBrand href="https://github.com/efthymew" target="_blank" className="nav-icon-git">
+                    <NavbarBrand href="https://github.com/efthymew/efthy-dev" target="_blank" className="nav-icon-git">
                         <img src={GithubLogo} width="50" alt='github' style={{ borderRadius: '50%' }} />
                     </NavbarBrand>
                 </Fade>
