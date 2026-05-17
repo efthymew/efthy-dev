@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {Vector2, Vector3, Matrix4, BufferGeometry, Float32BufferAttribute} from 'three';
 
 const spawnParticleMaxX = 10
-const spawnParticleMaxY = 20
+const spawnParticleMaxY = 10
 const spawnParticleMaxZ = 10
 const particleCount = 500;
 
@@ -44,7 +44,7 @@ function Particles() {
 
     // State for global variables that can change in real time
     const [gravityCenter] = useState(new Vector3(0, 0, 0)); // Change this to set the gravity center location
-    const [gravityMass, setGravityMass] = useState(100.0); // change to increase strength of gravity toward center
+    const [gravityMass, setGravityMass] = useState(20.0); // change to increase strength of gravity toward center
     const [desiredOrbitRadius, setDesiredOrbitRadius] = useState(2.0);
 
     // modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
@@ -55,6 +55,7 @@ function Particles() {
     // Generate random positions only once on mount
     useEffect(() => {
         const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
         const geometry = new BufferGeometry();
         for (let i = 0; i < particleCount; i++) {
             const particle = new Vector3((Math.random() - 0.5) * spawnParticleMaxX, (Math.random() - 0.5) * spawnParticleMaxY, (Math.random() - 0.5) * spawnParticleMaxZ);
@@ -76,8 +77,20 @@ function Particles() {
             particleVelocities[i * 3 + 2] = rotationVector.z;
         }
         geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
         particlesRef.current.geometry = geometry;
     }, []);
+
+    // pointer hovering
+    // const handlePointerMove = (e) => {
+    //     if (e.index === undefined) return;
+    //     const point = e.point.clone().project(camera);
+    //     onHover({
+    //         index: e.index,
+    //         x: (point.x * 0.5 + 0.5) * size.width,
+    //         y: (-point.y * 0.5 + 0.5) * size.height,
+    //     });
+    // };
 
     useFrame((state, delta) => {
         // kill logic here if the mount hasnt set the geometry yet
@@ -140,7 +153,7 @@ function Particles() {
 
     return (
         <points ref={particlesRef}>
-            <pointsMaterial color="white" size={0.1} />
+            <pointsMaterial size={0.1} />
         </points>
     );
 }
