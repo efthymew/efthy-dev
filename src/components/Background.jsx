@@ -45,10 +45,11 @@ function Particles() {
     // State for global variables that can change in real time
     const [gravityCenter] = useState(new Vector3(0, 0, 0)); // Change this to set the gravity center location
     const [gravityMass, setGravityMass] = useState(100.0); // change to increase strength of gravity toward center
+    const [desiredOrbitRadius, setDesiredOrbitRadius] = useState(2.0);
 
     // modify these variables to alter strength of gravity in a particular xyz direction. (camera is looking in -z direction at origin)
     const [gravityStrengthMultiplierX, setGravityStrengthMultiplierX] = useState(1.0);
-    const [gravityStrengthMultiplierY, setGravityStrengthMultiplierY] = useState(0.01);
+    const [gravityStrengthMultiplierY, setGravityStrengthMultiplierY] = useState(1.0);
     const [gravityStrengthMultiplierZ, setGravityStrengthMultiplierZ] = useState(1.0);
 
     // Generate random positions only once on mount
@@ -56,9 +57,23 @@ function Particles() {
         const positions = new Float32Array(particleCount * 3);
         const geometry = new BufferGeometry();
         for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * spawnParticleMaxX; // X
-            positions[i * 3 + 1] = (Math.random() - 0.5) * spawnParticleMaxY; // Y
-            positions[i * 3 + 2] = (Math.random() - 0.5) * spawnParticleMaxZ; // Z
+            const particle = new Vector3((Math.random() - 0.5) * spawnParticleMaxX, (Math.random() - 0.5) * spawnParticleMaxY, (Math.random() - 0.5) * spawnParticleMaxZ);
+
+            //make rotation vector tilt up to 10 degrees either direction along xz plane
+            var rotationVector = new Vector3(-particle.z + gravityCenter.z, 0, particle.x - gravityCenter.x).normalize();
+            const angleToRotate = (Math.random() - 0.5) * Math.PI / 2;
+            const rotationAxis = new Vector3(0, 1, 0).cross(rotationVector).normalize();
+            rotationVector.applyAxisAngle(rotationAxis, angleToRotate);
+            rotationVector.multiplyScalar(Math.sqrt(gravityMass / desiredOrbitRadius));
+
+            console.log(rotationVector)
+            positions[i * 3] = particle.x; // X
+            positions[i * 3 + 1] = particle.y; // Y
+            positions[i * 3 + 2] = particle.z; // Z
+
+            particleVelocities[i * 3] = rotationVector.x;
+            particleVelocities[i * 3 + 1] = rotationVector.y
+            particleVelocities[i * 3 + 2] = rotationVector.z;
         }
         geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
         particlesRef.current.geometry = geometry;
@@ -68,7 +83,7 @@ function Particles() {
         // kill logic here if the mount hasnt set the geometry yet
         if (!particlesRef.current?.geometry?.attributes?.position) return;
 
-        delta = Math.min(delta, 0.05) * 3;
+        delta = Math.min(delta, 0.05);
         const positionArray = particlesRef.current.geometry.attributes.position.array;
 
         for (let i = 0; i < positionArray.length; i += 3) {
@@ -85,24 +100,24 @@ function Particles() {
             // const gravityVector = new Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
-            let dx = gravityMass * (x - gravityCenter.x) / ((r ** 2 + (1 / gravityStrengthMultiplierX)) ** 1.5) * delta;
-            let dy = gravityMass * (y - gravityCenter.y) / ((r ** 2 + (1 / gravityStrengthMultiplierY)) ** 1.5) * delta;
-            let dz = gravityMass * (z - gravityCenter.z) / ((r ** 2 + (1 / gravityStrengthMultiplierZ)) ** 1.5) * delta;
+            let dx = gravityMass * (x - gravityCenter.x) / ((r ** 2 + (1 / gravityStrengthMultiplierX)) ** 1.5);
+            let dy = gravityMass * (y - gravityCenter.y) / ((r ** 2 + (1 / gravityStrengthMultiplierY)) ** 1.5);
+            let dz = gravityMass * (z - gravityCenter.z) / ((r ** 2 + (1 / gravityStrengthMultiplierZ)) ** 1.5);
 
             // Only apply force if length is non-zero to avoid division by zero
             // Update particle speeds
-            vx -= dx;
-            vy -= dy;
-            vz -= dz;
+            vx -= dx * delta;
+            vy -= dy * delta;
+            vz -= dz * delta;
 
 
             // calculate angular vector TODO: revisit this (its constant angular acceleration and i think orbits have locked angular velocities assuming spin of gravity is constant)
-            var fromCenter = new Vector2(x - gravityCenter.x, z - gravityCenter.z);
-            fromCenter.normalize();
-            var rotationVector = new Vector2(-fromCenter.y, fromCenter.x)
-            rotationVector.multiplyScalar((gravityMass) ** 0.5 / (r ** 2))
-            vx -= (rotationVector.x * delta)
-            vz -= (rotationVector.y * delta)
+            // var fromCenter = new Vector2(x - gravityCenter.x, z - gravityCenter.z);
+            // fromCenter.normalize();
+            // var rotationVector = new Vector2(-fromCenter.y, fromCenter.x)
+            // rotationVector.multiplyScalar((gravityMass) ** 0.5 / (r ** 2))
+            // vx -= (rotationVector.x * delta)
+            // vz -= (rotationVector.y * delta)
 
             //dampening since perpendicular forces add energy into the system, leading to the particles expanding outward
             // vx *= 0.999;
