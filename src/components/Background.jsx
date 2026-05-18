@@ -1,12 +1,15 @@
 import { Component, useRef, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Vector2, Vector3, Matrix4, BufferGeometry, Float32BufferAttribute } from 'three';
+import { OrbitControls } from "@react-three/drei";
+
 
 
 const spawnParticleMaxX = 5;
 const spawnParticleMaxY = 5;
 const spawnParticleMaxZ = 5;
 const particleCount = 500;
+const dampeningThreshold = 400; //in meters
 
 const starColors = [
     [155, 176, 255],
@@ -16,42 +19,30 @@ const starColors = [
     [255, 204, 111]
 ]
 
-const cameraPos = new Vector3(0, 0, 20)
+const cameraPos = new Vector3(0, 20, 0)
 // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
 // scale velocity off accelartion instead of velocity again
-function RotatingCamera({ shouldRotate }) {
+function Camera() {
     const { camera } = useThree();
 
     useEffect(() => {
         // Set the initial camera position
         camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
 
-        // Make the camera look at a specific point (e.g., the center of gravity/origin)
+        // camera look at origin
         camera.lookAt(0, 0, 0);
+        camera.far = 20000;
 
-        // Update camera projection matrix if you change any camera parameters
         camera.updateProjectionMatrix();
     }, [camera]);
 
-    useFrame(() => {
-        if (!shouldRotate.current) return;
-
-        const rotationMatrix = new Matrix4().makeRotationY(0.008); // Adjust rotation speed as needed
-        const rotationMatrixX = new Matrix4().makeRotationX(0.008);
-
-        // Apply the rotation to the camera's position
-        camera.position.applyMatrix4(rotationMatrix);
-        camera.position.applyMatrix4(rotationMatrixX);
-        camera.lookAt(0, 0, 0); // Ensure the camera always looks at the origin
-    });
-
-    return null; // No need to render anything; this component only updates the camera
+    return null; // camera setup so no xml
 }
 
 
 function Particles() {
     const particlesRef = useRef();
-    const [particleVelocities] = useState(new Float32Array(particleCount * 3)); // Store velocities as a Float32Array
+    const [particleVelocities] = useState(new Float32Array(particleCount * 3));
 
     // State for global variables that can change in real time
     const [gravityCenter] = useState(new Vector3(0, 0, 0)); // Change this to set the gravity center location
@@ -78,9 +69,9 @@ function Particles() {
             rotationVector.applyAxisAngle(rotationAxis, angleToRotate);
             rotationVector.multiplyScalar(Math.sqrt(gravityMass / desiredOrbitRadius));
 
-            positions[i * 3] = particle.x; // X
-            positions[i * 3 + 1] = particle.y; // Y
-            positions[i * 3 + 2] = particle.z; // Z
+            positions[i * 3] = particle.x;
+            positions[i * 3 + 1] = particle.y;
+            positions[i * 3 + 2] = particle.z;
 
             var r = 1;
             var g = 1;
@@ -161,9 +152,12 @@ function Particles() {
             // vz -= (rotationVector.y * delta)
 
             //dampening since perpendicular forces add energy into the system, leading to the particles expanding outward
-            // vx *= 0.999;
-            // vy *= 0.999;
-            // vz *= 0.999;
+            if (r > dampeningThreshold) {
+                vx *= 0.999;
+                vy *= 0.999;
+                vz *= 0.999;
+            }
+            
 
             positionArray[i] += vx * delta;
             positionArray[i + 1] += vy * delta;
@@ -198,28 +192,6 @@ class Background extends Component {
 
     constructor(props) {
         super(props);
-        this.shouldRotate = { current: false };
-    }
-
-    componentDidMount() {
-        document.addEventListener('click', this.handleClick);
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('click', this.handleClick);
-    }
-
-    handleClick = (e) => {
-        const tag = e.target.tagName.toLowerCase();
-        const isInteractive = ['a', 'button', 'input', 'select', 'textarea'].includes(tag)
-            || e.target.closest('a, button, input, select, textarea');
-
-        if (isInteractive) return;
-        
-        this.shouldRotate.current = true;
-        setTimeout(() => {
-            this.shouldRotate.current = false;
-        }, 1000);
     }
 
     render() {
@@ -237,7 +209,8 @@ class Background extends Component {
                 <ambientLight intensity={0.3} />
                 <directionalLight position={[5, 5, 5]} intensity={1} />
                 <Particles />
-                <RotatingCamera shouldRotate={this.shouldRotate} />
+                <Camera />
+                <OrbitControls />
             </Canvas>
         )
     }
