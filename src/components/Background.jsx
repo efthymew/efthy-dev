@@ -54,6 +54,9 @@ function Particles() {
     const [gravityStrengthMultiplierY, setGravityStrengthMultiplierY] = useState(1.0);
     const [gravityStrengthMultiplierZ, setGravityStrengthMultiplierZ] = useState(1.0);
 
+    const frameCount = useRef(0);
+    const constellations = useRef([]);
+
     // Generate random positions only once on mount
     useEffect(() => {
         const positions = new Float32Array(particleCount * 3);
@@ -115,8 +118,10 @@ function Particles() {
         // kill logic here if the mount hasnt set the geometry yet
         if (!particlesRef.current?.geometry?.attributes?.position) return;
 
+        frameCount.current += 1;
         delta = Math.min(delta, 0.05);
         const positionArray = particlesRef.current.geometry.attributes.position.array;
+        const colorArray = particlesRef.current.geometry.attributes.color.array;
 
         for (let i = 0; i < positionArray.length; i += 3) {
             const position = new Vector3(positionArray[i], positionArray[i + 1], positionArray[i + 2])
@@ -128,7 +133,22 @@ function Particles() {
             let vy = particleVelocities[i + 1];
             let vz = particleVelocities[i + 2];
 
-            // Calculate the vector from the gravity center to the particle
+            const vel = new Vector3(vx, vy, vz);
+
+            // check to see if particle meets requirements for constellation building. (ie: far r, slow v, low dot prod with ray from camera)
+            // for now recolor those particles to red
+            // only do constellation building once every 60 frames.
+            if (frameCount.current % 60 == 0) {
+                if (r > dampeningThreshold * 0.2) {
+                    colorArray[i + 1] = 0;
+                    colorArray[i + 2] = 0;
+                } else {
+                    colorArray[i + 1] = 1;
+                    colorArray[i + 2] = 1;
+                }
+            }
+
+            // calculate the vector from the gravity center to the particle
             // const gravityVector = new Vector3(x - gravityCenter.x, y - gravityCenter.y, z - gravityCenter.z);
             // const length = gravityVector.length(); // Get the distance
             // gravity_mass*(xyz) / ((x-grav_x)^2 + (y-grav_y)^2 + (z_grav_z)^2 + particle_mass)^(3/2)
@@ -153,11 +173,11 @@ function Particles() {
 
             //dampening since perpendicular forces add energy into the system, leading to the particles expanding outward
             if (r > dampeningThreshold) {
-                vx *= 0.999;
-                vy *= 0.999;
-                vz *= 0.999;
+                vx *= 0.9999;
+                vy *= 0.9999;
+                vz *= 0.9999;
             }
-            
+
 
             positionArray[i] += vx * delta;
             positionArray[i + 1] += vy * delta;
@@ -171,6 +191,7 @@ function Particles() {
 
         // Notify Three.js to update the position attribute after all changes
         particlesRef.current.geometry.attributes.position.needsUpdate = true;
+        particlesRef.current.geometry.attributes.color.needsUpdate = true;
     });
 
     return (
@@ -210,7 +231,7 @@ class Background extends Component {
                 <directionalLight position={[5, 5, 5]} intensity={1} />
                 <Particles />
                 <Camera />
-                <OrbitControls />
+                <OrbitControls enablePan={false} />
             </Canvas>
         )
     }
